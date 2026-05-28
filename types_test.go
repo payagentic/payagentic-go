@@ -141,8 +141,8 @@ func TestPolicy_JSON_Roundtrip(t *testing.T) {
 		Name:           "Daily Spend Cap",
 		Type:           PolicyTypeSpendCap,
 		Rules: PolicyRules{
-			MaxAmount:  "100.00",
-			DailyLimit: "500.00",
+			MaxAmount:     "100.00",
+			DailyLimit:    "500.00",
 			AllowedChains: []string{"base", "ethereum"},
 		},
 	}

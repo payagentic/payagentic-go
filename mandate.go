@@ -389,4 +389,3 @@ func (s *MandatesService) Revoke(ctx context.Context, jti, reason string) (*Revo
 	}
 	return &out, nil
 }
-

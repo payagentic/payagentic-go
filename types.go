@@ -88,15 +88,15 @@ type Agent struct {
 
 // Wallet represents a USDC smart account wallet.
 type Wallet struct {
-	ID             string    `json:"id"`
-	OrganizationID string    `json:"organization_id"`
-	AgentID        string    `json:"agent_id,omitempty"`
-	Address        string    `json:"address"`
-	Chain          string    `json:"chain"`
-	Balance        string    `json:"balance"`
+	ID             string       `json:"id"`
+	OrganizationID string       `json:"organization_id"`
+	AgentID        string       `json:"agent_id,omitempty"`
+	Address        string       `json:"address"`
+	Chain          string       `json:"chain"`
+	Balance        string       `json:"balance"`
 	Status         WalletStatus `json:"status"`
-	CreatedAt      time.Time `json:"created_at"`
-	UpdatedAt      time.Time `json:"updated_at"`
+	CreatedAt      time.Time    `json:"created_at"`
+	UpdatedAt      time.Time    `json:"updated_at"`
 }
 
 // Transaction represents a blockchain transaction.
@@ -131,23 +131,23 @@ type Payment struct {
 
 // Policy represents a spend policy governing agent wallets.
 type Policy struct {
-	ID             string     `json:"id"`
-	OrganizationID string     `json:"organization_id"`
-	Name           string     `json:"name"`
-	Type           PolicyType `json:"type"`
+	ID             string      `json:"id"`
+	OrganizationID string      `json:"organization_id"`
+	Name           string      `json:"name"`
+	Type           PolicyType  `json:"type"`
 	Rules          PolicyRules `json:"rules"`
-	CreatedAt      time.Time  `json:"created_at"`
-	UpdatedAt      time.Time  `json:"updated_at"`
+	CreatedAt      time.Time   `json:"created_at"`
+	UpdatedAt      time.Time   `json:"updated_at"`
 }
 
 // PolicyRules defines the set of rules within a policy.
 type PolicyRules struct {
-	MaxAmount      string   `json:"max_amount,omitempty"`
-	DailyLimit     string   `json:"daily_limit,omitempty"`
-	MonthlyLimit   string   `json:"monthly_limit,omitempty"`
-	AllowedChains  []string `json:"allowed_chains,omitempty"`
-	AllowedRecipients []string `json:"allowed_recipients,omitempty"`
-	TimeWindows    []TimeWindow `json:"time_windows,omitempty"`
+	MaxAmount         string       `json:"max_amount,omitempty"`
+	DailyLimit        string       `json:"daily_limit,omitempty"`
+	MonthlyLimit      string       `json:"monthly_limit,omitempty"`
+	AllowedChains     []string     `json:"allowed_chains,omitempty"`
+	AllowedRecipients []string     `json:"allowed_recipients,omitempty"`
+	TimeWindows       []TimeWindow `json:"time_windows,omitempty"`
 }
 
 // TimeWindow defines an allowed time window for transactions.
@@ -230,11 +230,11 @@ const (
 type PolicyType string
 
 const (
-	PolicyTypeSpendCap    PolicyType = "spend_cap"
-	PolicyTypeAllowlist   PolicyType = "allowlist"
-	PolicyTypeTimeWindow  PolicyType = "time_window"
-	PolicyTypeVelocity    PolicyType = "velocity"
-	PolicyTypeComposite   PolicyType = "composite"
+	PolicyTypeSpendCap   PolicyType = "spend_cap"
+	PolicyTypeAllowlist  PolicyType = "allowlist"
+	PolicyTypeTimeWindow PolicyType = "time_window"
+	PolicyTypeVelocity   PolicyType = "velocity"
+	PolicyTypeComposite  PolicyType = "composite"
 )
 
 // ApprovalStatus represents the status of an approval request.
@@ -296,7 +296,7 @@ type CreatePolicyRequest struct {
 
 // UpdatePolicyRequest contains the fields for updating a spend policy.
 type UpdatePolicyRequest struct {
-	Name  string      `json:"name,omitempty"`
+	Name  string       `json:"name,omitempty"`
 	Rules *PolicyRules `json:"rules,omitempty"`
 }
 
