@@ -86,8 +86,8 @@ func TestNewClient_WithCustomHTTPClient(t *testing.T) {
 }
 
 func TestNewClient_FromEnvironment(t *testing.T) {
-	t.Setenv("OMNIRAILS_API_KEY", "env-key-789")
-	t.Setenv("OMNIRAILS_AGENT_ID", "env-agent-012")
+	t.Setenv("PAYAGENTIC_API_KEY", "env-key-789")
+	t.Setenv("PAYAGENTIC_AGENT_ID", "env-agent-012")
 
 	c := NewClient(FromEnvironment())
 
@@ -100,8 +100,8 @@ func TestNewClient_FromEnvironment(t *testing.T) {
 }
 
 func TestNewClient_FromEnvironment_Empty(t *testing.T) {
-	os.Unsetenv("OMNIRAILS_API_KEY")
-	os.Unsetenv("OMNIRAILS_AGENT_ID")
+	os.Unsetenv("PAYAGENTIC_API_KEY")
+	os.Unsetenv("PAYAGENTIC_AGENT_ID")
 
 	c := NewClient(FromEnvironment())
 
@@ -115,7 +115,7 @@ func TestNewClient_FromEnvironment_Empty(t *testing.T) {
 
 func TestNewClient_OptionOrdering(t *testing.T) {
 	// CLI flags (later options) should override environment (earlier options).
-	t.Setenv("OMNIRAILS_API_KEY", "env-key")
+	t.Setenv("PAYAGENTIC_API_KEY", "env-key")
 
 	c := NewClient(
 		FromEnvironment(),

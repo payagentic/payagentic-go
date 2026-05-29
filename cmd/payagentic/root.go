@@ -16,8 +16,8 @@ for AI agents operating across African markets.`,
 }
 
 func init() {
-	rootCmd.PersistentFlags().String("api-key", "", "API key for authentication (env: OMNIRAILS_API_KEY)")
-	rootCmd.PersistentFlags().String("base-url", "", "API base URL (env: OMNIRAILS_BASE_URL)")
+	rootCmd.PersistentFlags().String("api-key", "", "API key for authentication (env: PAYAGENTIC_API_KEY)")
+	rootCmd.PersistentFlags().String("base-url", "", "API base URL (env: PAYAGENTIC_BASE_URL)")
 	rootCmd.PersistentFlags().StringP("output", "o", "table", "Output format: table or json")
 
 	rootCmd.AddCommand(walletsCmd)

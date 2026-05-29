@@ -68,13 +68,13 @@ func WithAgentID(id string) Option {
 }
 
 // FromEnvironment configures the client from environment variables.
-// It reads OMNIRAILS_API_KEY and OMNIRAILS_AGENT_ID.
+// It reads PAYAGENTIC_API_KEY and PAYAGENTIC_AGENT_ID.
 func FromEnvironment() Option {
 	return func(c *Client) {
-		if key := os.Getenv("OMNIRAILS_API_KEY"); key != "" {
+		if key := os.Getenv("PAYAGENTIC_API_KEY"); key != "" {
 			c.config.APIKey = key
 		}
-		if agentID := os.Getenv("OMNIRAILS_AGENT_ID"); agentID != "" {
+		if agentID := os.Getenv("PAYAGENTIC_AGENT_ID"); agentID != "" {
 			c.config.AgentID = agentID
 		}
 	}

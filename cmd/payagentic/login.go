@@ -20,7 +20,7 @@ locally for subsequent CLI commands.`,
 		fmt.Fprintln(cmd.OutOrStdout(), "OIDC device flow login is not yet implemented.")
 		fmt.Fprintln(cmd.OutOrStdout(), "")
 		fmt.Fprintln(cmd.OutOrStdout(), "In the meantime, authenticate using an API key:")
-		fmt.Fprintln(cmd.OutOrStdout(), "  export OMNIRAILS_API_KEY=your-api-key")
+		fmt.Fprintln(cmd.OutOrStdout(), "  export PAYAGENTIC_API_KEY=your-api-key")
 		fmt.Fprintln(cmd.OutOrStdout(), "  payagentic wallets list")
 		return nil
 	},

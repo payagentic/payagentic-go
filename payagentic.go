@@ -17,7 +17,7 @@
 //
 //	client := payagentic.NewClient(payagentic.FromEnvironment())
 //
-// Set OMNIRAILS_API_KEY and OMNIRAILS_AGENT_ID environment variables.
+// Set PAYAGENTIC_API_KEY and PAYAGENTIC_AGENT_ID environment variables.
 package payagentic
 
 // Version is the current SDK version.
