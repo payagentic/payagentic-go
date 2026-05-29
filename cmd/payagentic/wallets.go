@@ -1,7 +1,7 @@
 package main
 
 import (
-	raistonpay "github.com/raiston/raistonpay-go"
+	raistonpay "github.com/payagentic/payagentic-go"
 	"github.com/spf13/cobra"
 )
 

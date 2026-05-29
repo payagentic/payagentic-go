@@ -1,14 +1,14 @@
 package main
 
 import (
-	raistonpay "github.com/raiston/raistonpay-go"
+	raistonpay "github.com/payagentic/payagentic-go"
 	"github.com/spf13/cobra"
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "omnirails",
+	Use:   "payagentic",
 	Short: "RaistonPay CLI for managing agent wallets, payments, and policies",
-	Long: `omnirails is the command-line interface for the RaistonPay agent payments platform.
+	Long: `payagentic is the command-line interface for the RaistonPay agent payments platform.
 
 Manage programmable USDC wallets, spend policies, and x402 payments
 for AI agents operating across African markets.`,

@@ -1,4 +1,4 @@
-module github.com/raiston/raistonpay-go
+module github.com/payagentic/payagentic-go
 
 go 1.23
 

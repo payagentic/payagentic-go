@@ -1,4 +1,4 @@
-// Package main is the entry point for the omnirails CLI.
+// Package main is the entry point for the payagentic CLI.
 package main
 
 import (

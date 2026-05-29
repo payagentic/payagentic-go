@@ -21,7 +21,7 @@ locally for subsequent CLI commands.`,
 		fmt.Fprintln(cmd.OutOrStdout(), "")
 		fmt.Fprintln(cmd.OutOrStdout(), "In the meantime, authenticate using an API key:")
 		fmt.Fprintln(cmd.OutOrStdout(), "  export OMNIRAILS_API_KEY=your-api-key")
-		fmt.Fprintln(cmd.OutOrStdout(), "  omnirails wallets list")
+		fmt.Fprintln(cmd.OutOrStdout(), "  payagentic wallets list")
 		return nil
 	},
 }
