@@ -1,4 +1,4 @@
-package payagentic
+package middleware
 
 import (
 	"context"
@@ -58,9 +58,9 @@ func (p RetryPolicy) backoff(attempt int) time.Duration {
 	return delay
 }
 
-// withRetry executes fn with retries according to the given policy.
+// WithRetry executes fn with retries according to the given policy.
 // Only responses with retryable HTTP status codes trigger a retry.
-func withRetry(ctx context.Context, policy RetryPolicy, fn func() (*http.Response, error)) (*http.Response, error) {
+func WithRetry(ctx context.Context, policy RetryPolicy, fn func() (*http.Response, error)) (*http.Response, error) {
 	var lastResp *http.Response
 	var lastErr error
 

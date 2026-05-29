@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/payagentic/payagentic-go/internal/middleware"
 )
 
 const (
@@ -138,7 +140,7 @@ func (c *Client) do(ctx context.Context, method, path string, body any, result a
 		return c.httpClient.Do(req)
 	}
 
-	resp, err := withRetry(ctx, c.retryPolicy, fn)
+	resp, err := middleware.WithRetry(ctx, c.retryPolicy, fn)
 	if err != nil {
 		return fmt.Errorf("executing request %s %s: %w", method, path, err)
 	}
@@ -150,7 +152,7 @@ func (c *Client) do(ctx context.Context, method, path string, body any, result a
 	}
 
 	if resp.StatusCode >= 400 {
-		return parseErrorResponse(resp.StatusCode, respBody, resp.Header.Get("X-Trace-ID"))
+		return middleware.ParseErrorResponse(resp.StatusCode, respBody, resp.Header.Get("X-Trace-ID"))
 	}
 
 	if result != nil && len(respBody) > 0 {

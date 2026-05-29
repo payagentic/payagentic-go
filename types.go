@@ -3,6 +3,8 @@ package payagentic
 import (
 	"net/http"
 	"time"
+
+	"github.com/payagentic/payagentic-go/internal/middleware"
 )
 
 // Config holds the configuration for the PayAgentic client.
@@ -14,6 +16,62 @@ type Config struct {
 	// AgentID is the optional agent identifier sent as a request header.
 	AgentID string
 }
+
+// RetryPolicy re-exports the retry policy configuration from the
+// internal middleware package so callers can stay on the parent import.
+type RetryPolicy = middleware.RetryPolicy
+
+// DefaultRetryPolicy returns a sensible default retry policy.
+func DefaultRetryPolicy() RetryPolicy {
+	return middleware.DefaultRetryPolicy()
+}
+
+// ProblemDetails re-exports the RFC 9457 error envelope from the
+// internal middleware package.
+type ProblemDetails = middleware.ProblemDetails
+
+// APIError re-exports the base API error type.
+type APIError = middleware.APIError
+
+// NotFoundError re-exports the 404 typed error.
+type NotFoundError = middleware.NotFoundError
+
+// UnauthorizedError re-exports the 401 typed error.
+type UnauthorizedError = middleware.UnauthorizedError
+
+// ForbiddenError re-exports the 403 typed error.
+type ForbiddenError = middleware.ForbiddenError
+
+// RateLimitError re-exports the 429 typed error.
+type RateLimitError = middleware.RateLimitError
+
+// ConflictError re-exports the 409 typed error.
+type ConflictError = middleware.ConflictError
+
+// ValidationError re-exports the 422 typed error.
+type ValidationError = middleware.ValidationError
+
+// IsRetryable reports whether the given error represents a transient failure
+// that should be retried.
+func IsRetryable(err error) bool { return middleware.IsRetryable(err) }
+
+// IsNotFound reports whether the error is a 404 Not Found.
+func IsNotFound(err error) bool { return middleware.IsNotFound(err) }
+
+// IsUnauthorized reports whether the error is a 401 Unauthorized.
+func IsUnauthorized(err error) bool { return middleware.IsUnauthorized(err) }
+
+// IsForbidden reports whether the error is a 403 Forbidden.
+func IsForbidden(err error) bool { return middleware.IsForbidden(err) }
+
+// IsRateLimit reports whether the error is a 429 Too Many Requests.
+func IsRateLimit(err error) bool { return middleware.IsRateLimit(err) }
+
+// IsConflict reports whether the error is a 409 Conflict.
+func IsConflict(err error) bool { return middleware.IsConflict(err) }
+
+// IsValidation reports whether the error is a 422 Unprocessable Entity.
+func IsValidation(err error) bool { return middleware.IsValidation(err) }
 
 // Client is the PayAgentic API client. Use NewClient to create one.
 type Client struct {
@@ -44,15 +102,6 @@ type PaginatedResponse[T any] struct {
 	NextCursor string `json:"next_cursor,omitempty"`
 	// TotalCount is the total number of items matching the query, if available.
 	TotalCount int64 `json:"total_count,omitempty"`
-}
-
-// ProblemDetails follows RFC 9457 for structured error responses.
-type ProblemDetails struct {
-	Type     string `json:"type,omitempty"`
-	Title    string `json:"title,omitempty"`
-	Status   int    `json:"status,omitempty"`
-	Detail   string `json:"detail,omitempty"`
-	Instance string `json:"instance,omitempty"`
 }
 
 // Organization represents an organization on the platform.

@@ -1,4 +1,4 @@
-package payagentic
+package middleware
 
 import (
 	"context"
@@ -109,7 +109,7 @@ func TestWithRetry_NoRetries(t *testing.T) {
 	}
 
 	policy := RetryPolicy{MaxRetries: 0}
-	resp, err := withRetry(context.Background(), policy, fn)
+	resp, err := WithRetry(context.Background(), policy, fn)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -144,7 +144,7 @@ func TestWithRetry_RetriesOnServerError(t *testing.T) {
 		Jitter:     false,
 	}
 
-	resp, err := withRetry(context.Background(), policy, fn)
+	resp, err := WithRetry(context.Background(), policy, fn)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -172,7 +172,7 @@ func TestWithRetry_DoesNotRetryClientErrors(t *testing.T) {
 		MaxDelay:   10 * time.Millisecond,
 	}
 
-	resp, err := withRetry(context.Background(), policy, fn)
+	resp, err := WithRetry(context.Background(), policy, fn)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -205,7 +205,7 @@ func TestWithRetry_RespectsContextCancellation(t *testing.T) {
 		MaxDelay:   10 * time.Millisecond,
 	}
 
-	_, err := withRetry(ctx, policy, fn)
+	_, err := WithRetry(ctx, policy, fn)
 	if err != context.Canceled {
 		t.Errorf("expected context.Canceled, got %v", err)
 	}
@@ -227,7 +227,7 @@ func TestWithRetry_ExhaustsRetries(t *testing.T) {
 		MaxDelay:   10 * time.Millisecond,
 	}
 
-	resp, err := withRetry(context.Background(), policy, fn)
+	resp, err := WithRetry(context.Background(), policy, fn)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

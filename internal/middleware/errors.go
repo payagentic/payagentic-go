@@ -1,4 +1,6 @@
-package payagentic
+// Package middleware composes auth, retry, and RFC 7807 error mapping
+// for the PayAgentic HTTP transport.
+package middleware
 
 import (
 	"encoding/json"
@@ -6,6 +8,15 @@ import (
 	"fmt"
 	"net/http"
 )
+
+// ProblemDetails follows RFC 9457 for structured error responses.
+type ProblemDetails struct {
+	Type     string `json:"type,omitempty"`
+	Title    string `json:"title,omitempty"`
+	Status   int    `json:"status,omitempty"`
+	Detail   string `json:"detail,omitempty"`
+	Instance string `json:"instance,omitempty"`
+}
 
 // APIError represents an API error response from PayAgentic.
 type APIError struct {
@@ -46,8 +57,8 @@ type ConflictError struct{ *APIError }
 // ValidationError is returned on invalid input (HTTP 422).
 type ValidationError struct{ *APIError }
 
-// parseErrorResponse constructs the appropriate typed error from an HTTP response.
-func parseErrorResponse(statusCode int, body []byte, traceID string) error {
+// ParseErrorResponse constructs the appropriate typed error from an HTTP response.
+func ParseErrorResponse(statusCode int, body []byte, traceID string) error {
 	apiErr := &APIError{
 		StatusCode: statusCode,
 		TraceID:    traceID,
