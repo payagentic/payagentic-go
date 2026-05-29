@@ -1,0 +1,3 @@
+# oapi-codegen output. Regenerate with `just gen-sdk-go`.
+internal/openapi/openapi.gen.go linguist-generated=true
+internal/openapi/openapi.gen.go -diff
