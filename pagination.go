@@ -1,4 +1,4 @@
-package raistonpay
+package payagentic
 
 // ListOptions configures paginated list requests.
 type ListOptions struct {

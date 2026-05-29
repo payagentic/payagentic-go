@@ -1,7 +1,7 @@
 package main
 
 import (
-	raistonpay "github.com/payagentic/payagentic-go"
+	payagentic "github.com/payagentic/payagentic-go"
 	"github.com/spf13/cobra"
 )
 
@@ -17,7 +17,7 @@ var walletsListCmd = &cobra.Command{
 		client := getClient(cmd)
 		limit, _ := cmd.Flags().GetInt("limit")
 		cursor, _ := cmd.Flags().GetString("cursor")
-		opts := &raistonpay.ListOptions{Limit: limit, Cursor: cursor}
+		opts := &payagentic.ListOptions{Limit: limit, Cursor: cursor}
 		resp, err := client.Wallets.List(cmd.Context(), opts)
 		if err != nil {
 			return err
@@ -49,7 +49,7 @@ var walletsFundCmd = &cobra.Command{
 		amount, _ := cmd.Flags().GetString("amount")
 		currency, _ := cmd.Flags().GetString("currency")
 		source, _ := cmd.Flags().GetString("source")
-		req := &raistonpay.FundWalletRequest{
+		req := &payagentic.FundWalletRequest{
 			Amount:   amount,
 			Currency: currency,
 			Source:   source,
@@ -71,7 +71,7 @@ var walletsWithdrawCmd = &cobra.Command{
 		amount, _ := cmd.Flags().GetString("amount")
 		currency, _ := cmd.Flags().GetString("currency")
 		destination, _ := cmd.Flags().GetString("destination")
-		req := &raistonpay.WithdrawWalletRequest{
+		req := &payagentic.WithdrawWalletRequest{
 			Amount:      amount,
 			Currency:    currency,
 			Destination: destination,

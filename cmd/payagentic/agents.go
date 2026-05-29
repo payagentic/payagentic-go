@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	raistonpay "github.com/payagentic/payagentic-go"
+	payagentic "github.com/payagentic/payagentic-go"
 	"github.com/spf13/cobra"
 )
 
@@ -19,7 +19,7 @@ var agentsListCmd = &cobra.Command{
 		client := getClient(cmd)
 		limit, _ := cmd.Flags().GetInt("limit")
 		cursor, _ := cmd.Flags().GetString("cursor")
-		opts := &raistonpay.ListOptions{Limit: limit, Cursor: cursor}
+		opts := &payagentic.ListOptions{Limit: limit, Cursor: cursor}
 		resp, err := client.Agents.List(cmd.Context(), opts)
 		if err != nil {
 			return err
@@ -34,7 +34,7 @@ var agentsCreateCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient(cmd)
 		name, _ := cmd.Flags().GetString("name")
-		req := &raistonpay.CreateAgentRequest{Name: name}
+		req := &payagentic.CreateAgentRequest{Name: name}
 		agent, err := client.Agents.Create(cmd.Context(), req)
 		if err != nil {
 			return err

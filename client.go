@@ -1,4 +1,4 @@
-package raistonpay
+package payagentic
 
 import (
 	"bytes"
@@ -12,8 +12,8 @@ import (
 )
 
 const (
-	// DefaultBaseURL is the default RaistonPay API base URL.
-	DefaultBaseURL = "https://api.raistonpay.com"
+	// DefaultBaseURL is the default PayAgentic API base URL.
+	DefaultBaseURL = "https://api.payagentic.com"
 	// DefaultTimeout is the default HTTP request timeout.
 	DefaultTimeout = 30 * time.Second
 )
@@ -80,7 +80,7 @@ func FromEnvironment() Option {
 	}
 }
 
-// NewClient creates a new RaistonPay API client configured with the given options.
+// NewClient creates a new PayAgentic API client configured with the given options.
 func NewClient(opts ...Option) *Client {
 	c := &Client{
 		config: Config{
@@ -123,7 +123,7 @@ func (c *Client) do(ctx context.Context, method, path string, body any, result a
 			return nil, fmt.Errorf("creating request: %w", err)
 		}
 
-		req.Header.Set("User-Agent", "raistonpay-go/"+Version)
+		req.Header.Set("User-Agent", "payagentic-go/"+Version)
 		req.Header.Set("Accept", "application/json")
 		if body != nil {
 			req.Header.Set("Content-Type", "application/json")

@@ -1,4 +1,4 @@
-package raistonpay
+package payagentic
 
 import (
 	"context"

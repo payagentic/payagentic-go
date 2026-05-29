@@ -1,4 +1,4 @@
-package raistonpay
+package payagentic
 
 import (
 	"encoding/json"
@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-// APIError represents an API error response from RaistonPay.
+// APIError represents an API error response from PayAgentic.
 type APIError struct {
 	// StatusCode is the HTTP status code returned by the API.
 	StatusCode int
@@ -20,12 +20,12 @@ type APIError struct {
 // Error implements the error interface.
 func (e *APIError) Error() string {
 	if e.Problem.Detail != "" {
-		return fmt.Sprintf("raistonpay: %d %s: %s (trace: %s)", e.StatusCode, e.Problem.Title, e.Problem.Detail, e.TraceID)
+		return fmt.Sprintf("payagentic: %d %s: %s (trace: %s)", e.StatusCode, e.Problem.Title, e.Problem.Detail, e.TraceID)
 	}
 	if e.Problem.Title != "" {
-		return fmt.Sprintf("raistonpay: %d %s (trace: %s)", e.StatusCode, e.Problem.Title, e.TraceID)
+		return fmt.Sprintf("payagentic: %d %s (trace: %s)", e.StatusCode, e.Problem.Title, e.TraceID)
 	}
-	return fmt.Sprintf("raistonpay: %d (trace: %s)", e.StatusCode, e.TraceID)
+	return fmt.Sprintf("payagentic: %d (trace: %s)", e.StatusCode, e.TraceID)
 }
 
 // NotFoundError is returned when a resource is not found (HTTP 404).

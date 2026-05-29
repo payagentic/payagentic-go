@@ -1,4 +1,4 @@
-package raistonpay
+package payagentic
 
 import (
 	"context"
@@ -24,7 +24,7 @@ type X402PaymentRequest struct {
 
 // X402PaymentResponse contains the result of an x402 payment.
 type X402PaymentResponse struct {
-	// PaymentID is the RaistonPay payment identifier.
+	// PaymentID is the PayAgentic payment identifier.
 	PaymentID string `json:"payment_id"`
 	// Receipt is the signed payment receipt to present to the API.
 	Receipt string `json:"receipt"`

@@ -1,4 +1,4 @@
-package raistonpay
+package payagentic
 
 import (
 	"bufio"
@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// Event represents a server-sent event from the RaistonPay streaming API.
+// Event represents a server-sent event from the PayAgentic streaming API.
 type Event struct {
 	// Type is the event type (e.g. "transaction.confirmed", "payment.settled").
 	Type string `json:"type"`
@@ -36,7 +36,7 @@ func (c *Client) Subscribe(ctx context.Context, path string) (*EventStream, erro
 
 	req.Header.Set("Accept", "text/event-stream")
 	req.Header.Set("Cache-Control", "no-cache")
-	req.Header.Set("User-Agent", "raistonpay-go/"+Version)
+	req.Header.Set("User-Agent", "payagentic-go/"+Version)
 	if c.config.APIKey != "" {
 		req.Header.Set("Authorization", "Bearer "+c.config.APIKey)
 	}

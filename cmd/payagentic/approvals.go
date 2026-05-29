@@ -1,7 +1,7 @@
 package main
 
 import (
-	raistonpay "github.com/payagentic/payagentic-go"
+	payagentic "github.com/payagentic/payagentic-go"
 	"github.com/spf13/cobra"
 )
 
@@ -17,7 +17,7 @@ var approvalsListCmd = &cobra.Command{
 		client := getClient(cmd)
 		limit, _ := cmd.Flags().GetInt("limit")
 		cursor, _ := cmd.Flags().GetString("cursor")
-		opts := &raistonpay.ListOptions{Limit: limit, Cursor: cursor}
+		opts := &payagentic.ListOptions{Limit: limit, Cursor: cursor}
 		resp, err := client.Approvals.List(cmd.Context(), opts)
 		if err != nil {
 			return err
@@ -33,7 +33,7 @@ var approvalsApproveCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient(cmd)
 		reason, _ := cmd.Flags().GetString("reason")
-		req := &raistonpay.ApprovalDecisionRequest{Reason: reason}
+		req := &payagentic.ApprovalDecisionRequest{Reason: reason}
 		approval, err := client.Approvals.Approve(cmd.Context(), args[0], req)
 		if err != nil {
 			return err
@@ -49,7 +49,7 @@ var approvalsDenyCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := getClient(cmd)
 		reason, _ := cmd.Flags().GetString("reason")
-		req := &raistonpay.ApprovalDecisionRequest{Reason: reason}
+		req := &payagentic.ApprovalDecisionRequest{Reason: reason}
 		approval, err := client.Approvals.Deny(cmd.Context(), args[0], req)
 		if err != nil {
 			return err

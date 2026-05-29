@@ -1,8 +1,8 @@
-package raistonpay
+package payagentic
 
 // Mandate envelope, signer, and presentation helpers (M6).
 //
-// Mirrors the TypeScript/Python SDKs and the Rust omnirails-mandate crate
+// Mirrors the TypeScript/Python SDKs and the Rust payagentic-mandate crate
 // byte-for-byte. The JWS protected header is
 // {"alg":"EdDSA","kid":<kid>,"typ":"JWT"} and the payload is encoded with
 // RFC 8785 canonical JSON before signing so signatures verify identically
@@ -26,7 +26,7 @@ import (
 const (
 	MandateSupportedVersion = 1
 	MandateSupportedAlg     = "EdDSA"
-	DefaultMandateAudience  = "omnirails-mandate"
+	DefaultMandateAudience  = "payagentic-mandate"
 )
 
 // MandateSigner produces an Ed25519 signature over a mandate signing input.

@@ -1,4 +1,4 @@
-package raistonpay
+package payagentic
 
 import (
 	"context"
@@ -137,7 +137,7 @@ func TestClient_Do_Success(t *testing.T) {
 		if r.Header.Get("Authorization") != "Bearer test-key" {
 			t.Errorf("expected Authorization header 'Bearer test-key', got %q", r.Header.Get("Authorization"))
 		}
-		if r.Header.Get("User-Agent") != "raistonpay-go/"+Version {
+		if r.Header.Get("User-Agent") != "payagentic-go/"+Version {
 			t.Errorf("unexpected User-Agent: %q", r.Header.Get("User-Agent"))
 		}
 		w.Header().Set("Content-Type", "application/json")
@@ -169,7 +169,7 @@ func TestClient_Do_ErrorResponse(t *testing.T) {
 		w.Header().Set("X-Trace-ID", "trace-abc")
 		w.WriteHeader(http.StatusNotFound)
 		json.NewEncoder(w).Encode(ProblemDetails{
-			Type:   "https://api.raistonpay.com/errors/not-found",
+			Type:   "https://api.payagentic.com/errors/not-found",
 			Title:  "Not Found",
 			Status: 404,
 			Detail: "Organization not found",

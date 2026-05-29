@@ -1,21 +1,21 @@
-package raistonpay
+package payagentic
 
 import (
 	"net/http"
 	"time"
 )
 
-// Config holds the configuration for the RaistonPay client.
+// Config holds the configuration for the PayAgentic client.
 type Config struct {
 	// APIKey is the bearer token used for authentication.
 	APIKey string
-	// BaseURL is the RaistonPay API base URL.
+	// BaseURL is the PayAgentic API base URL.
 	BaseURL string
 	// AgentID is the optional agent identifier sent as a request header.
 	AgentID string
 }
 
-// Client is the RaistonPay API client. Use NewClient to create one.
+// Client is the PayAgentic API client. Use NewClient to create one.
 type Client struct {
 	config      Config
 	httpClient  httpDoer

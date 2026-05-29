@@ -1,7 +1,7 @@
 package main
 
 import (
-	raistonpay "github.com/payagentic/payagentic-go"
+	payagentic "github.com/payagentic/payagentic-go"
 	"github.com/spf13/cobra"
 )
 
@@ -18,7 +18,7 @@ var transactionsListCmd = &cobra.Command{
 		client := getClient(cmd)
 		limit, _ := cmd.Flags().GetInt("limit")
 		cursor, _ := cmd.Flags().GetString("cursor")
-		opts := &raistonpay.ListOptions{Limit: limit, Cursor: cursor}
+		opts := &payagentic.ListOptions{Limit: limit, Cursor: cursor}
 		resp, err := client.Transactions.List(cmd.Context(), opts)
 		if err != nil {
 			return err

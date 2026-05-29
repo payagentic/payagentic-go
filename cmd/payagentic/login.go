@@ -9,7 +9,7 @@ import (
 var loginCmd = &cobra.Command{
 	Use:   "login",
 	Short: "Authenticate via OIDC device flow",
-	Long: `Authenticate with RaistonPay using the OIDC device authorization flow.
+	Long: `Authenticate with PayAgentic using the OIDC device authorization flow.
 
 This initiates a device code flow where you will be given a URL and code
 to enter in your browser. Once authenticated, your credentials are stored

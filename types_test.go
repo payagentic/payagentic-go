@@ -1,4 +1,4 @@
-package raistonpay
+package payagentic
 
 import (
 	"encoding/json"
@@ -193,7 +193,7 @@ func TestPaginatedResponse_JSON(t *testing.T) {
 
 func TestProblemDetails_JSON(t *testing.T) {
 	input := `{
-		"type": "https://api.raistonpay.com/errors/not-found",
+		"type": "https://api.payagentic.com/errors/not-found",
 		"title": "Not Found",
 		"status": 404,
 		"detail": "Wallet wal-xxx does not exist",

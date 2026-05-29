@@ -1,14 +1,14 @@
 package main
 
 import (
-	raistonpay "github.com/payagentic/payagentic-go"
+	payagentic "github.com/payagentic/payagentic-go"
 	"github.com/spf13/cobra"
 )
 
 var rootCmd = &cobra.Command{
 	Use:   "payagentic",
-	Short: "RaistonPay CLI for managing agent wallets, payments, and policies",
-	Long: `payagentic is the command-line interface for the RaistonPay agent payments platform.
+	Short: "PayAgentic CLI for managing agent wallets, payments, and policies",
+	Long: `payagentic is the command-line interface for the PayAgentic agent payments platform.
 
 Manage programmable USDC wallets, spend policies, and x402 payments
 for AI agents operating across African markets.`,
@@ -30,22 +30,22 @@ func init() {
 	rootCmd.AddCommand(versionCmd)
 }
 
-// getClient builds a RaistonPay client from CLI flags and environment variables.
-func getClient(cmd *cobra.Command) *raistonpay.Client {
-	var opts []raistonpay.Option
+// getClient builds a PayAgentic client from CLI flags and environment variables.
+func getClient(cmd *cobra.Command) *payagentic.Client {
+	var opts []payagentic.Option
 
 	// Environment variables are the baseline.
-	opts = append(opts, raistonpay.FromEnvironment())
+	opts = append(opts, payagentic.FromEnvironment())
 
 	// CLI flags override environment variables.
 	if key, _ := cmd.Flags().GetString("api-key"); key != "" {
-		opts = append(opts, raistonpay.WithAPIKey(key))
+		opts = append(opts, payagentic.WithAPIKey(key))
 	}
 	if baseURL, _ := cmd.Flags().GetString("base-url"); baseURL != "" {
-		opts = append(opts, raistonpay.WithBaseURL(baseURL))
+		opts = append(opts, payagentic.WithBaseURL(baseURL))
 	}
 
-	return raistonpay.NewClient(opts...)
+	return payagentic.NewClient(opts...)
 }
 
 // getOutputFormat returns the requested output format (table or json).
