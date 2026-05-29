@@ -1,3 +1,16 @@
+// Package payagentic is the official Go SDK for PayAgentic.
+//
+// Example usage:
+//
+//	import "github.com/payagentic/payagentic-go"
+//
+//	client, err := payagentic.NewClient(payagentic.WithAPIKey("pa_test_…"))
+//	if err != nil {
+//	    log.Fatal(err)
+//	}
+//	ctx := context.Background()
+//	wallets, err := client.OpenAPI.ListWalletsWithResponse(ctx, nil)
+//	resp, err := client.X402.Fetch(ctx, "https://vendor.example.com/data")
 package payagentic
 
 import (
@@ -11,136 +24,144 @@ import (
 	"time"
 
 	"github.com/payagentic/payagentic-go/internal/middleware"
+	"github.com/payagentic/payagentic-go/internal/openapi"
 )
 
-const (
-	// DefaultBaseURL is the default PayAgentic API base URL.
-	DefaultBaseURL = "https://api.payagentic.com"
-	// DefaultTimeout is the default HTTP request timeout.
-	DefaultTimeout = 30 * time.Second
-)
+// DefaultBaseURL is the production gateway URL used when WithBaseURL is not set.
+const DefaultBaseURL = "https://api.payagentic.ai"
 
-// Option configures the Client.
+// DefaultTimeout is the http.Client request timeout used when WithTimeout
+// is not set.
+const DefaultTimeout = 30 * time.Second
+
+// Option configures a Client.
 type Option func(*Client)
 
-// WithAPIKey sets the API key for authentication.
+// WithAPIKey sets the API key sent as Bearer token.
 func WithAPIKey(key string) Option {
-	return func(c *Client) {
-		c.config.APIKey = key
-	}
+	return func(c *Client) { c.config.APIKey = key }
 }
 
-// WithBaseURL sets the API base URL.
-func WithBaseURL(url string) Option {
-	return func(c *Client) {
-		c.config.BaseURL = url
-	}
-}
-
-// WithHTTPClient sets a custom HTTP client.
-func WithHTTPClient(hc *http.Client) Option {
-	return func(c *Client) {
-		c.httpClient = hc
-	}
-}
-
-// WithRetryPolicy sets the retry policy for failed requests.
-func WithRetryPolicy(p RetryPolicy) Option {
-	return func(c *Client) {
-		c.retryPolicy = p
-	}
-}
-
-// WithTimeout sets the HTTP client timeout. This only works when the underlying
-// HTTP client is a *http.Client (the default). Custom httpDoer implementations
-// should manage their own timeouts.
-func WithTimeout(d time.Duration) Option {
-	return func(c *Client) {
-		if hc, ok := c.httpClient.(*http.Client); ok {
-			hc.Timeout = d
-		}
-	}
-}
-
-// WithAgentID sets the agent ID header on requests.
+// WithAgentID sets the X-Agent-ID header.
 func WithAgentID(id string) Option {
-	return func(c *Client) {
-		c.config.AgentID = id
-	}
+	return func(c *Client) { c.config.AgentID = id }
 }
 
-// FromEnvironment configures the client from environment variables.
-// It reads PAYAGENTIC_API_KEY and PAYAGENTIC_AGENT_ID.
+// WithBaseURL overrides the gateway URL.
+func WithBaseURL(url string) Option {
+	return func(c *Client) { c.config.BaseURL = url }
+}
+
+// WithHTTPClient overrides the underlying http.Client. When set, the SDK
+// uses this client as-is — middleware composition is the caller's responsibility.
+func WithHTTPClient(hc *http.Client) Option {
+	return func(c *Client) { c.httpClient = hc }
+}
+
+// WithRetryPolicy overrides the retry policy.
+func WithRetryPolicy(p middleware.RetryPolicy) Option {
+	return func(c *Client) { c.retryPolicy = p }
+}
+
+// WithTimeout sets the request timeout on the underlying http.Client.
+func WithTimeout(d time.Duration) Option {
+	return func(c *Client) { c.config.Timeout = d }
+}
+
+// FromEnvironment is a no-op Option retained for backward compatibility.
+// Environment resolution now happens automatically inside NewClient.
 func FromEnvironment() Option {
-	return func(c *Client) {
-		if key := os.Getenv("PAYAGENTIC_API_KEY"); key != "" {
-			c.config.APIKey = key
-		}
-		if agentID := os.Getenv("PAYAGENTIC_AGENT_ID"); agentID != "" {
-			c.config.AgentID = agentID
-		}
-	}
+	return func(c *Client) {}
 }
 
-// NewClient creates a new PayAgentic API client configured with the given options.
-func NewClient(opts ...Option) *Client {
+// NewClient builds a Client with the given options.
+//
+// Resolves APIKey from PAYAGENTIC_API_KEY env, AgentID from PAYAGENTIC_AGENT_ID,
+// and BaseURL from PAYAGENTIC_BASE_URL when not set explicitly via Options.
+// Returns an error if no API key is resolvable.
+func NewClient(opts ...Option) (*Client, error) {
 	c := &Client{
 		config: Config{
 			BaseURL: DefaultBaseURL,
+			Timeout: DefaultTimeout,
 		},
-		httpClient:  &http.Client{Timeout: DefaultTimeout},
-		retryPolicy: DefaultRetryPolicy(),
+		retryPolicy: middleware.DefaultRetryPolicy(),
 	}
 	for _, opt := range opts {
 		opt(c)
 	}
 
-	// Initialize service handles.
-	c.Organizations = &OrganizationsService{client: c}
-	c.Wallets = &WalletsService{client: c}
-	c.Agents = &AgentsService{client: c}
-	c.Payments = &PaymentsService{client: c}
-	c.Transactions = &TransactionsService{client: c}
-	c.Policies = &PoliciesService{client: c}
-	c.Approvals = &ApprovalsService{client: c}
+	if c.config.APIKey == "" {
+		c.config.APIKey = os.Getenv("PAYAGENTIC_API_KEY")
+	}
+	if c.config.AgentID == "" {
+		c.config.AgentID = os.Getenv("PAYAGENTIC_AGENT_ID")
+	}
+	if envURL := os.Getenv("PAYAGENTIC_BASE_URL"); envURL != "" && c.config.BaseURL == DefaultBaseURL {
+		c.config.BaseURL = envURL
+	}
 
-	return c
+	if c.config.APIKey == "" {
+		return nil, fmt.Errorf(
+			"payagentic: API key required; pass WithAPIKey or set PAYAGENTIC_API_KEY")
+	}
+
+	if c.httpClient == nil {
+		transport := middleware.NewTransport(middleware.TransportOptions{
+			APIKey:      c.config.APIKey,
+			AgentID:     c.config.AgentID,
+			RetryPolicy: c.retryPolicy,
+		})
+		c.httpClient = &http.Client{
+			Transport: transport,
+			Timeout:   c.config.Timeout,
+		}
+	}
+
+	gen, err := openapi.NewClientWithResponses(c.config.BaseURL, openapi.WithHTTPClient(c.httpClient))
+	if err != nil {
+		return nil, fmt.Errorf("payagentic: constructing openapi client: %w", err)
+	}
+	c.OpenAPI = gen
+	c.X402 = NewX402Client(c)
+
+	return c, nil
+}
+
+// Close releases any resources held by the Client.
+func (c *Client) Close() error {
+	return nil
 }
 
 // do executes an HTTP request with retries and JSON marshalling.
+//
+// Retained for legacy callers (mandate.go, x402.go) until Task 9 reworks
+// them on the generated transport. The middleware composition already
+// handles auth, retries, and RFC 7807 error mapping, so this method only
+// needs to marshal/unmarshal JSON and surface non-2xx as typed errors.
 func (c *Client) do(ctx context.Context, method, path string, body any, result any) error {
-	fn := func() (*http.Response, error) {
-		var reqBody io.Reader
-		if body != nil {
-			b, err := json.Marshal(body)
-			if err != nil {
-				return nil, fmt.Errorf("marshalling request body: %w", err)
-			}
-			reqBody = bytes.NewReader(b)
-		}
-
-		url := c.config.BaseURL + path
-		req, err := http.NewRequestWithContext(ctx, method, url, reqBody)
+	var reqBody io.Reader
+	if body != nil {
+		b, err := json.Marshal(body)
 		if err != nil {
-			return nil, fmt.Errorf("creating request: %w", err)
+			return fmt.Errorf("marshalling request body: %w", err)
 		}
-
-		req.Header.Set("User-Agent", "payagentic-go/"+Version)
-		req.Header.Set("Accept", "application/json")
-		if body != nil {
-			req.Header.Set("Content-Type", "application/json")
-		}
-		if c.config.APIKey != "" {
-			req.Header.Set("Authorization", "Bearer "+c.config.APIKey)
-		}
-		if c.config.AgentID != "" {
-			req.Header.Set("X-Agent-ID", c.config.AgentID)
-		}
-
-		return c.httpClient.Do(req)
+		reqBody = bytes.NewReader(b)
 	}
 
-	resp, err := middleware.WithRetry(ctx, c.retryPolicy, fn)
+	url := c.config.BaseURL + path
+	req, err := http.NewRequestWithContext(ctx, method, url, reqBody)
+	if err != nil {
+		return fmt.Errorf("creating request: %w", err)
+	}
+
+	req.Header.Set("User-Agent", "payagentic-go/"+Version)
+	req.Header.Set("Accept", "application/json")
+	if body != nil {
+		req.Header.Set("Content-Type", "application/json")
+	}
+
+	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("executing request %s %s: %w", method, path, err)
 	}

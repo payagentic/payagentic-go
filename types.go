@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/payagentic/payagentic-go/internal/middleware"
+	"github.com/payagentic/payagentic-go/internal/openapi"
 )
 
 // Config holds the configuration for the PayAgentic client.
@@ -15,6 +16,8 @@ type Config struct {
 	BaseURL string
 	// AgentID is the optional agent identifier sent as a request header.
 	AgentID string
+	// Timeout is the per-request timeout applied to the underlying http.Client.
+	Timeout time.Duration
 }
 
 // RetryPolicy re-exports the retry policy configuration from the
@@ -74,24 +77,24 @@ func IsConflict(err error) bool { return middleware.IsConflict(err) }
 func IsValidation(err error) bool { return middleware.IsValidation(err) }
 
 // Client is the PayAgentic API client. Use NewClient to create one.
+//
+// It exposes:
+//   - OpenAPI: a generated *openapi.Client with one method per gateway endpoint
+//     (e.g. client.OpenAPI.ListWalletsWithResponse(ctx, nil))
+//   - X402: the x402 payment helper
+//
+// The Client's underlying http.Client has bearer auth, retries, idempotency
+// keys, and RFC 7807 typed errors composed via internal/middleware.NewTransport.
 type Client struct {
 	config      Config
-	httpClient  httpDoer
+	httpClient  *http.Client
 	retryPolicy RetryPolicy
 
-	// Services
-	Organizations *OrganizationsService
-	Wallets       *WalletsService
-	Agents        *AgentsService
-	Payments      *PaymentsService
-	Transactions  *TransactionsService
-	Policies      *PoliciesService
-	Approvals     *ApprovalsService
-}
-
-// httpDoer is satisfied by *http.Client and is used to allow test injection.
-type httpDoer interface {
-	Do(req *http.Request) (*http.Response, error)
+	// OpenAPI exposes the generated transport with all gateway operations
+	// in the *WithResponse form (status-code-typed responses).
+	OpenAPI *openapi.ClientWithResponses
+	// X402 is the x402 payment helper.
+	X402 *X402Client
 }
 
 // PaginatedResponse wraps a paginated list of items returned by the API.

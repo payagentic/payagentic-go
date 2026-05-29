@@ -45,12 +45,7 @@ func (c *Client) Subscribe(ctx context.Context, path string) (*EventStream, erro
 	}
 
 	// Use the underlying http.Client directly; no retry for streaming connections.
-	httpClient, ok := c.httpClient.(*http.Client)
-	if !ok {
-		return nil, fmt.Errorf("streaming requires a *http.Client")
-	}
-
-	resp, err := httpClient.Do(req)
+	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("connecting to event stream: %w", err)
 	}

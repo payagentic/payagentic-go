@@ -1,3 +1,5 @@
+//go:build legacy_cli
+
 // Package main is the entry point for the payagentic CLI.
 package main
 
