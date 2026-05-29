@@ -9,7 +9,7 @@ generate:
   gin-server: false
 output: internal/openapi/openapi.gen.go
 output-options:
-  skip-prune: true
   skip-fmt: false
+  response-type-suffix: HTTPResponse
 compatibility:
   always-prefix-enum-values: true
