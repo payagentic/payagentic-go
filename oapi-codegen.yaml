@@ -1,0 +1,15 @@
+# oapi-codegen config — see https://github.com/oapi-codegen/oapi-codegen
+package: openapi
+generate:
+  models: true
+  client: true
+  embedded-spec: false
+  std-http-server: false
+  echo-server: false
+  gin-server: false
+output: internal/openapi/openapi.gen.go
+output-options:
+  skip-prune: true
+  skip-fmt: false
+compatibility:
+  always-prefix-enum-values: true
