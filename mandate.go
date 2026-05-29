@@ -368,6 +368,11 @@ func (c *Client) Mandates() *MandatesService {
 }
 
 // Issue calls POST /v1/mandates/issue.
+//
+// NOTE: /v1/mandates/issue and /v1/mandates/{jti}/revoke are owned by the
+// identity service, not exposed in the gateway spec at api/openapi.json.
+// Direct HTTP via client.do() is the only option until those endpoints
+// are surfaced.
 func (s *MandatesService) Issue(ctx context.Context, params IssueGrantParams) (*IssuedGrant, error) {
 	var out IssuedGrant
 	if err := s.client.do(ctx, "POST", "/v1/mandates/issue", params, &out); err != nil {
@@ -377,6 +382,8 @@ func (s *MandatesService) Issue(ctx context.Context, params IssueGrantParams) (*
 }
 
 // Revoke calls POST /v1/mandates/{jti}/revoke. Idempotent.
+//
+// NOTE: identity-service-owned (see Issue's docstring for rationale).
 func (s *MandatesService) Revoke(ctx context.Context, jti, reason string) (*RevokedGrant, error) {
 	body := map[string]any{}
 	if reason != "" {
