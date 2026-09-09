@@ -1,148 +1,72 @@
-# payagentic-go
+# PayAgentic Go SDK
 
-Official Go SDK for [PayAgentic](https://payagentic.ai) — programmable USDC wallets for AI agents that pay external APIs over [x402](https://www.x402.org/).
+Build AI agents that buy API data using PayAgentic's programmable stablecoin wallets, spend policies and x402 payment APIs.
+
+[Package reference](https://pkg.go.dev/github.com/payagentic/payagentic-go) · [Developer home](https://payagentic.ai/platform/developers) · [SDK documentation](https://payagentic.ai/sdks#go) · [Pricing](https://payagentic.ai/pricing) · [Integration support](mailto:developers@payagentic.ai)
 
 ## Install
 
-```bash
+Requires Go 1.24.3 or later; see `go.mod` for this release's toolchain requirements.
+
+```sh
+mkdir payagentic-example
+cd payagentic-example
+go mod init example/payagentic
 go get github.com/payagentic/payagentic-go
 ```
 
-Requires Go 1.23+.
+Pin the installed version in your application's `go.mod` and commit `go.sum`. This is a pre-1.0 SDK: review and test changes before upgrading.
 
-> **Note on source layout.** This SDK is developed in the PayAgentic monorepo at [`payagentic/monorepo/sdks/go`](https://github.com/payagentic/monorepo/tree/main/sdks/go) and published to [`payagentic/payagentic-go`](https://github.com/payagentic/payagentic-go) via `git subtree split` on every release. Consumers always `go get` from `payagentic-go`; only contributors touch the monorepo path.
+## Check your connection
 
-## Usage
+Set `PAYAGENTIC_API_KEY` and `PAYAGENTIC_BASE_URL` through your server's runtime environment or secret manager. The gateway URL must match your deployment; do not rely on the SDK default without checking it.
 
-### Construct a client
+Save the following as `main.go` and run `go run .`. It performs a read-only wallet request and prints the HTTP status, without printing wallet data or the API key.
 
 ```go
+package main
+
 import (
     "context"
+    "fmt"
+    "log"
+    "os"
     payagentic "github.com/payagentic/payagentic-go"
 )
 
-client, err := payagentic.NewClient(payagentic.WithAPIKey("pa_test_…"))
-if err != nil {
-    log.Fatal(err)
-}
-defer client.Close()
-```
-
-The client reads `PAYAGENTIC_API_KEY`, `PAYAGENTIC_AGENT_ID`, and `PAYAGENTIC_BASE_URL` from the environment when those options aren't passed explicitly.
-
-### Call the gateway
-
-Every endpoint in the gateway's OpenAPI spec is exposed under `client.OpenAPI` as a `*WithResponse`-suffixed method. Response structs have one field per declared status code (`JSON200`, `JSON400`, etc).
-
-```go
-ctx := context.Background()
-
-// Wallets
-wallets, _ := client.OpenAPI.ListWalletsWithResponse(ctx, nil)
-wallet, _  := client.OpenAPI.GetWalletWithResponse(ctx, "wal_…")
-
-// Payments
-proposed, _ := client.OpenAPI.ProposePaymentWithResponse(ctx,
-    openapi.ProposePaymentJSONRequestBody{ /* … */ })
-status, _   := client.OpenAPI.GetPaymentWithResponse(ctx, proposed.JSON200.Id)
-
-// Mandates
-mandates, _ := client.OpenAPI.ListMandatesWithResponse(ctx, nil)
-```
-
-### x402 paywall walker
-
-```go
-resp, err := client.X402.Fetch(ctx, "https://api.vendor.com/paid-endpoint")
-```
-
-Hit a paid URL, the walker proposes a payment from your wallet, settles it via the gateway, then retries with `X-Payment-Receipt`.
-
-### Typed errors
-
-Non-2xx responses become typed Go errors. Use `errors.As` to discriminate:
-
-```go
-import (
-    "errors"
-    payagentic "github.com/payagentic/payagentic-go"
-)
-
-_, err := client.OpenAPI.GetWalletWithResponse(ctx, "wal_xyz")
-
-var unauth *payagentic.UnauthorizedError
-var notFound *payagentic.NotFoundError
-switch {
-case errors.As(err, &unauth):
-    // re-auth or surface to the user
-case errors.As(err, &notFound):
-    // wallet doesn't exist
-}
-
-if payagentic.IsRetryable(err) {
-    // retry your higher-level operation
+func main() {
+    baseURL := os.Getenv("PAYAGENTIC_BASE_URL")
+    if baseURL == "" { log.Fatal("Set PAYAGENTIC_BASE_URL") }
+    client, err := payagentic.NewClient(payagentic.WithBaseURL(baseURL))
+    if err != nil { log.Fatal("Check SDK configuration") }
+    defer client.Close()
+    result, err := client.OpenAPI.ListWalletsWithResponse(context.Background(), nil)
+    if err != nil { log.Fatal("Gateway request failed") }
+    fmt.Println("Gateway HTTP status:", result.StatusCode())
 }
 ```
 
-### Re-exported types
+Expected output with a working gateway and authorized key:
 
-Common generated response shapes are re-exported under the top-level `payagentic` package so you don't need to import `internal/openapi` directly:
-
-```go
-var wallet payagentic.WalletResponse
-var payment payagentic.PaymentResponse
-var balance payagentic.BalanceResponse
+```text
+Gateway HTTP status: 200
 ```
 
-### Configuration options
+The same complete program is in [examples/connection/main.go](examples/connection/main.go). From a checkout of this repository, run `go run ./examples/connection`.
 
-```go
-client, _ := payagentic.NewClient(
-    payagentic.WithAPIKey("pa_test_…"),
-    payagentic.WithAgentID("agent_…"),
-    payagentic.WithBaseURL("https://api.staging.payagentic.ai"),
-    payagentic.WithTimeout(30 * time.Second),
-    payagentic.WithRetryPolicy(middleware.RetryPolicy{
-        MaxRetries: 3,
-        BaseDelay:  200 * time.Millisecond,
-        MaxDelay:   5 * time.Second,
-        Jitter:     0.2,
-    }),
-    payagentic.WithHTTPClient(myCustomClient), // overrides all middleware
-)
-```
+## Try the buyer and merchant workflow
 
-## Generated transport
+The [runnable examples guide](https://payagentic.ai/docs/examples) provides a downloadable Node.js buyer and merchant demonstration with setup instructions, expected output and tests. It illustrates the HTTP exchange for developers in any language. Payment authorization is simulated; no funds move.
 
-The HTTP transport in `internal/openapi/openapi.gen.go` is generated by [`oapi-codegen`](https://github.com/oapi-codegen/oapi-codegen) from the gateway's OpenAPI spec at [`../../api/openapi.json`](../../api/openapi.json). Regenerated by the monorepo's `just gen-sdk-go`.
+For actual payments, follow the [quickstart](https://payagentic.ai/docs/quickstart), finish wallet provisioning and configure a funded test wallet and spend policy. Merchants must register their API and endpoint and verify origin ownership to test the registered merchant transaction fee flow. An HTTP 200 response alone does not prove settlement; reconcile gateway transaction status before recording it.
 
-The generator runs against the spec via a `jq` preprocessor that downgrades OpenAPI 3.1 nullable arrays (`type: [X, "null"]`) to 3.0 `nullable: true` form, since `oapi-codegen` doesn't yet support 3.1.
+## Troubleshooting and compatibility
 
-`internal/openapi/openapi.gen.go` is marked `linguist-generated=true`. Don't edit it directly — modify the gateway's `#[utoipa::path]` annotations + regenerate.
+- Missing key or configuration error: make the runtime variables available to the process running the example.
+- DNS or connection failure: verify `PAYAGENTIC_BASE_URL` with your deployment operator.
+- HTTP 401 or 403: check the key's environment and permissions. Do not post the key in an issue or paste it into browser code.
+- Documentation mentions a method absent from your installed SDK: confirm the gateway and SDK release versions before changing your integration.
 
-## Development (from the monorepo)
+This public repository is a release mirror of the private PayAgentic monorepo. Public releases can lag source development; website examples may target newer source builds. The download guide identifies source-built examples separately from registry releases. Use this repository and pkg.go.dev to inspect the API actually installed.
 
-```bash
-just gen-sdk-go    # regenerate from api/openapi.json
-cd sdks/go
-go vet ./...
-go test ./...
-go build ./...
-```
-
-The legacy `cmd/payagentic` CLI is gated behind a `legacy_cli` build tag (it predates the codegen rewrite). Build it with `go build -tags legacy_cli ./cmd/payagentic` if needed; a rewrite on the new façade is tracked as a follow-up.
-
-## Publishing
-
-```bash
-just release-go 0.1.0   # subtree split + force-push to payagentic-go + tag v0.1.0
-```
-
-The monorepo's `sdks/go/` is the editorial source of truth. `release-go.sh` extracts that subtree into a flat tree and force-pushes to `git@github.com:payagentic/payagentic-go.git`. Consumers always `go get github.com/payagentic/payagentic-go@v0.1.0`.
-
-The empty `payagentic-go` repo must exist on GitHub before the first release.
-
-## License
-
-MIT
+The SDK uses the MIT license (see [LICENSE](LICENSE)). Platform subscriptions and transaction fees are separate; see [pricing](https://payagentic.ai/pricing).
