@@ -28,7 +28,7 @@ import (
 )
 
 // DefaultBaseURL is the production gateway URL used when WithBaseURL is not set.
-const DefaultBaseURL = "https://api.payagentic.ai"
+const DefaultBaseURL = "https://app.payagentic.ai"
 
 // DefaultTimeout is the http.Client request timeout used when WithTimeout
 // is not set.

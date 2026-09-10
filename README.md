@@ -19,7 +19,7 @@ Pin the installed version in your application's `go.mod` and commit `go.sum`. Th
 
 ## Check your connection
 
-Set `PAYAGENTIC_API_KEY` and `PAYAGENTIC_BASE_URL` through your server's runtime environment or secret manager. The gateway URL must match your deployment; do not rely on the SDK default without checking it.
+Set `PAYAGENTIC_API_KEY` through your server's runtime environment or secret manager. For this example, set `PAYAGENTIC_BASE_URL=https://app.payagentic.ai`, the hosted production gateway. Use your own gateway origin for another deployment. The SDK also uses the hosted origin when no base URL is configured.
 
 Save the following as `main.go` and run `go run .`. It performs a read-only wallet request and prints the HTTP status, without printing wallet data or the API key.
 
@@ -56,7 +56,7 @@ The same complete program is in [examples/connection/main.go](examples/connectio
 
 ## Try the buyer and merchant workflow
 
-The [runnable examples guide](https://payagentic.ai/docs/examples) provides a downloadable Node.js buyer and merchant demonstration with setup instructions, expected output and tests. It illustrates the HTTP exchange for developers in any language. Payment authorization is simulated; no funds move.
+The [public runnable examples](https://github.com/payagentic/examples) provides a downloadable Node.js buyer and merchant demonstration with setup instructions, expected output and tests. It illustrates the HTTP exchange for developers in any language. Payment authorization is simulated; no funds move.
 
 For actual payments, follow the [quickstart](https://payagentic.ai/docs/quickstart), finish wallet provisioning and configure a funded test wallet and spend policy. Merchants must register their API and endpoint and verify origin ownership to test the registered merchant transaction fee flow. An HTTP 200 response alone does not prove settlement; reconcile gateway transaction status before recording it.
 
