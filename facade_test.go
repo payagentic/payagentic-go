@@ -1,10 +1,12 @@
 package payagentic
 
 import (
-	"encoding/json"
+	"go/ast"
+	"go/parser"
+	"go/token"
 	"os"
-	"path/filepath"
 	"reflect"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -59,21 +61,40 @@ func TestNewClient_ExposesX402(t *testing.T) {
 	}
 }
 
-func TestSpec_HasAtLeast62Paths(t *testing.T) {
-	cwd, _ := os.Getwd()
-	specPath := filepath.Join(cwd, "..", "..", "api", "openapi.json")
-	raw, err := os.ReadFile(specPath)
+func TestGeneratedClient_HasAtLeast62Paths(t *testing.T) {
+	// Inspect the transport shipped in this module. The monorepo OpenAPI
+	// source is unavailable to users of a standalone checkout or module ZIP.
+	file, err := parser.ParseFile(token.NewFileSet(), "internal/openapi/openapi.gen.go", nil, 0)
 	if err != nil {
-		t.Fatalf("reading spec: %v", err)
+		t.Fatalf("parsing generated client: %v", err)
 	}
-	var spec struct {
-		Paths map[string]any `json:"paths"`
-	}
-	if err := json.Unmarshal(raw, &spec); err != nil {
-		t.Fatalf("parsing spec: %v", err)
-	}
-	if got := len(spec.Paths); got < 62 {
-		t.Errorf("expected ≥62 paths in spec, got %d", got)
+	paths := make(map[string]struct{})
+	ast.Inspect(file, func(node ast.Node) bool {
+		assignment, ok := node.(*ast.AssignStmt)
+		if !ok || assignment.Tok != token.DEFINE || len(assignment.Lhs) != 1 || len(assignment.Rhs) != 1 {
+			return true
+		}
+		name, ok := assignment.Lhs[0].(*ast.Ident)
+		if !ok || name.Name != "operationPath" {
+			return true
+		}
+		call, ok := assignment.Rhs[0].(*ast.CallExpr)
+		if !ok || len(call.Args) == 0 {
+			t.Fatal("generated operationPath must contain a literal route")
+		}
+		literal, ok := call.Args[0].(*ast.BasicLit)
+		if !ok || literal.Kind != token.STRING {
+			t.Fatal("generated route must be a string literal")
+		}
+		path, err := strconv.Unquote(literal.Value)
+		if err != nil || !strings.HasPrefix(path, "/") {
+			t.Fatal("generated route must be an absolute path")
+		}
+		paths[path] = struct{}{}
+		return true
+	})
+	if got := len(paths); got < 62 {
+		t.Errorf("expected at least 62 paths in the shipped client, got %d", got)
 	}
 }
 
