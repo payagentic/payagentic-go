@@ -62,6 +62,8 @@ For actual payments, follow the [quickstart](https://payagentic.ai/docs/quicksta
 
 ## Troubleshooting and compatibility
 
+From a standalone checkout, run `go vet ./...`, `go test -race -count=1 ./...` and `go build ./...`. No monorepo checkout, external OpenAPI fixture or live API credential is needed. The route inventory test checks the generated transport shipped in this module. The GitHub workflow runs these same checks before release review.
+
 - Missing key or configuration error: make the runtime variables available to the process running the example.
 - DNS or connection failure: verify `PAYAGENTIC_BASE_URL` with your deployment operator.
 - HTTP 401 or 403: check the key's environment and permissions. Do not post the key in an issue or paste it into browser code.
